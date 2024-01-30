@@ -19,6 +19,7 @@ function createWindow() {
         resizable: false,
         disableAutoHideCursor: true,
         title: "MongoDB Atlas | AdminPro",
+        icon: path.join(__dirname, 'favicon.ico'),
         webPreferences: {
             contextIsolation: true,
             nodeIntegration: true,
