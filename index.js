@@ -347,7 +347,7 @@ document.addEventListener("DOMContentLoaded", () => {
         filterTableByKeywordAndNull("#read-table > tbody", document.getElementById("read-search").value.toLowerCase(), document.getElementById("read-null").checked);
     });
     document.getElementById("delete-search").addEventListener("input", () => {
-        filterTableByKeywordAndNull("#delete-table > tbody", document.getElementById("delete-search").value.toLowerCase(), document.getElementById("delete-null").checked);
+        filterTableByKeywordAndNull("#delete-table > tbody", document.getElementById("delete-search").value.toLowerCase(), document.getElementById("delete-null").checked, document.getElementById("delete-selected").checked);
     });
 
     // Add an event listener for changes in the "Show Null" checkbox
@@ -355,12 +355,15 @@ document.addEventListener("DOMContentLoaded", () => {
         filterTableByKeywordAndNull("#read-table > tbody", document.getElementById("read-search").value.toLowerCase(), document.getElementById("read-null").checked);
     });
     document.getElementById("delete-null").addEventListener("change", () => {
-        filterTableByKeywordAndNull("#delete-table > tbody", document.getElementById("delete-search").value.toLowerCase(), document.getElementById("delete-null").checked);
+        filterTableByKeywordAndNull("#delete-table > tbody", document.getElementById("delete-search").value.toLowerCase(), document.getElementById("delete-null").checked, document.getElementById("delete-selected").checked);
     });
+    document.getElementById("delete-selected").addEventListener("change", () => {
+        filterTableByKeywordAndNull("#delete-table > tbody", document.getElementById("delete-search").value.toLowerCase(), document.getElementById("delete-null").checked, document.getElementById("delete-selected").checked);
+    })
 });
 
 // Combined function to achieve the scenario
-function filterTableByKeywordAndNull(table, query, showNull) {
+function filterTableByKeywordAndNull(table, query, showNull, selectedOnly = false) {
     const tableBody = document.querySelector(table);
     const rows = tableBody.querySelectorAll("tr");
 
@@ -381,13 +384,22 @@ function filterTableByKeywordAndNull(table, query, showNull) {
             }
         });
 
-        // Show the row only if both conditions are met
-        row.style.display = showNull ? (hasNull && hasKeyword) ? "" : "none" : hasKeyword ? "" : "none";
+        // Check if the row has a checkbox
+        const hasCheckbox = row.querySelector("input[type='checkbox']");
+
+        if (hasCheckbox) {
+            // Check if the row is selected
+            const isSelected = hasCheckbox.checked;
+
+            row.style.display = selectedOnly
+                ? (isSelected && (showNull ? (hasNull && hasKeyword) : hasKeyword)) ? "" : "none"
+                : (showNull ? (hasNull && hasKeyword) : hasKeyword) ? "" : "none";
+        } else {
+            // If there is no checkbox, show the row based on the null and keyword conditions
+            row.style.display = (showNull ? (hasNull && hasKeyword) : hasKeyword) ? "" : "none";
+        }
     });
 }
-
-
-
 
 // Function to create HTML elements
 async function createElement(tag, textContent, classes, parent) {
