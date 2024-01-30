@@ -238,6 +238,10 @@ async function crudRead(event) {
     }
 }
 
+async function crudDelete(event) {
+    document.querySelector("#accordion-flush-body-4 > div > div > div").setAttribute("status", "");
+}
+
 // Add an event listener for input changes in the search box
 document.addEventListener("DOMContentLoaded", () => {
     const searchInput = document.getElementById("read-search");
