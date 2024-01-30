@@ -1,0 +1,19 @@
+{
+  "name": "adminpro",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "dependencies": {
+    "date-fns": "^3.3.1",
+    "electron": "^28.1.4",
+    "electron-reloader": "^1.2.3",
+    "mongodb": "^6.3.0",
+    "mongoose": "^8.1.0"
+  },
+  "scripts": {
+    "start": "electron ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

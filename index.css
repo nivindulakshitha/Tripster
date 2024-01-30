@@ -1,0 +1,112 @@
+html,
+body {
+  height: 100%;
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+  box-sizing: border-box;
+  text-rendering: optimizeLegibility;
+  display: block;
+  user-select: none;
+  max-height: 100%;
+}
+
+body section {
+  height: 100%;
+  justify-content: center;
+  align-items: center;
+}
+
+input,
+select {
+  outline: none;
+}
+
+input:focus,
+button:focus,
+select:focus {
+  outline: none !important;
+  border: 1px solid rgb(209 213 219 / var(--tw-border-opacity)) !important;
+  box-shadow: none !important;
+}
+
+.justify-items-center {
+  justify-items: center !important;
+}
+
+.align-content-center {
+  align-content: center !important;
+}
+
+.align-items-center {
+  align-items: center !important;
+}
+
+button {
+  background-color: #00684a;
+}
+
+.color-mongo {
+  color: #00684a !important;
+}
+
+#login-area {
+  width: 33%;
+  height: 50%;
+}
+
+#accordion-flush > h2.disabled {
+  pointer-events: none;
+}
+
+#accordion-flush > h2.disabled > div > span > div,
+#accordion-flush > h2.disabled + div {
+  opacity: 0.5;
+  pointer-events: none;
+  filter: blur(0.5px);
+}
+
+#accordion-flush > h2.disabled > div > span > span {
+  display: inline-flex;
+}
+
+body > section > div > footer > div > ul > li > a {
+  opacity: 0.7;
+}
+
+#connection-status[status="error"] svg {
+  display: none;
+}
+
+#connection-status[status="error"] span {
+  color: rgb(239 68 68) !important;
+}
+
+#connection-status[status="error"] button {
+  display: block;
+}
+
+section:nth-child(2) {
+  max-height: 100%;
+}
+
+section:nth-child(2) #accordion-flush {
+  padding: 15px;
+  height: 420px;
+  max-height: 420px;
+  overflow-x: hidden;
+  overflow-y: scroll;
+}
+
+*:not([type="checkbox"]) {
+  transition: all 0.5s ease;
+}
+
+section .loading-status[status="done"] {
+  display: none !important;
+}
+
+table tbody tr *:not(.disabled) {
+  user-select: text;
+}
