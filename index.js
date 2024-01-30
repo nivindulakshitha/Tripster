@@ -13,11 +13,12 @@ document.querySelector("body > section:first-child > div > div:nth-child(3) > bu
     document.querySelector("#login-area").style.filter = "blur(2px)";
 
     // Use object destructuring for cleaner code
+    const { value: database } = document.querySelector("#database-name");
     const { value: username } = document.querySelector("#admin-username");
     const { value: password } = document.querySelector("#admin-password");
 
     try {
-        const result = await performDatabaseConnect("Admin", "wadproject24");
+        const result = await performDatabaseConnect("WAD", "Admin", "wadproject24");
 
         if (result.connection) {
             document.querySelector("#login-cover").classList.add("hidden");

@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 
 require("electron-reloader")(module);
 
-let adminPro, username, password, mongoClient;
+let adminPro, database, username, password, mongoClient;
 
 function createWindow() {
     adminPro = new BrowserWindow({
@@ -49,6 +49,7 @@ app.on('window-all-closed', () => {
 
 ipcMain.handle('database-connect', async (event, data) => {
     try {
+        database = data.database;
         username = data.username;
         password = data.password;
         mongoClient = await connectToMongo();
@@ -85,12 +86,12 @@ async function connectToMongo() {
 
 async function getDatabaseDetails() {
     try {
-        const Db = mongoClient.db('WAD_DB');
+        const Db = mongoClient.db(database);
         const currentUser = await Db.command({ connectionStatus: 1 });
         const userRoles = currentUser.authInfo.authenticatedUserRoles;
 
         await mongoose.connect(`mongodb+srv://${username}:${password}@cluster.jnlrnoz.mongodb.net/?retryWrites=true&w=majority`, {
-            dbName: 'WAD_DB',
+            dbName: database,
         });
 
         const dbStats = await mongoose.connection.db.stats();
@@ -126,7 +127,7 @@ async function getCollection() {
 
 async function getDocuments(collectionName) {
     try {
-        const database = mongoClient.db('WAD_DB');
+        const database = mongoClient.db(database);
         const collection = database.collection(collectionName);
         const query = {};
         const documents = await collection.find(query).toArray();

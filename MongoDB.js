@@ -8,9 +8,9 @@ setTimeout(() => {
     const { ipcRenderer, dateFns } = window.electronAPI;
 
     if (ipcRenderer) {
-        performDatabaseConnect = async (username, password) => {
+        performDatabaseConnect = async (database, username, password) => {
             try {
-                return result = await ipcRenderer.invoke('database-connect', { username: username, password: password });
+                return result = await ipcRenderer.invoke('database-connect', { database: database, username: username, password: password });
             } catch (error) {
                 console.log("Error in database operation:", error);
             }
