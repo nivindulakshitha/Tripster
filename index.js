@@ -153,6 +153,15 @@ document.querySelector("#read-collection").addEventListener("change", (event) =>
     crudRead();
 });
 
+// For the DELETE operation
+document.querySelector("#accordion-flush-heading-4").addEventListener("click", crudDelete);
+document.querySelector("#delete-collection").addEventListener("change", (event) => {
+    collectionSelection = event.target.value;
+    document.getElementById("delete-search").value = "";
+    document.getElementById("delete-null").checked = false;
+    crudDelete();
+});
+
 async function crudRead(event) {
     document.querySelector("#accordion-flush-body-2 > div > div > div").setAttribute("status", "");
 
@@ -240,6 +249,87 @@ async function crudRead(event) {
 
 async function crudDelete(event) {
     document.querySelector("#accordion-flush-body-4 > div > div > div").setAttribute("status", "");
+
+    if (document.querySelector("#accordion-flush-heading-4 > div").getAttribute("aria-expanded") === "true") {
+        try {
+            while (collections.length === 0) {
+                await new Promise(resolve => setTimeout(resolve, dataRetrieverTime));
+            }
+
+            const collectionSelect = document.querySelector("#delete-collection");
+            collectionSelect.innerHTML = "";
+            for (const collection of collections) {
+                const option = await createElement("option", collection, [], collectionSelect)
+                option.setAttribute("value", collection);
+
+                if (collectionSelection.length === 0 && collections.indexOf(collection) === 0) {
+                    option.selected = true;
+                    collectionSelection = collection;
+                } else {
+                    collectionSelect.value = collectionSelection;
+                }
+            }
+
+            while (Object.keys(documents).length === 0) {
+                await new Promise(resolve => setTimeout(resolve, dataRetrieverTime));
+            }
+            document.querySelector("#accordion-flush-body-4 > div > div > div").setAttribute("status", "done");
+
+            const tableHeaderRow = document.querySelector("#delete-table > thead > tr");
+            const tableBody = document.querySelector("#delete-table > tbody");
+            tableHeaderRow.innerHTML = "";
+            tableBody.innerHTML = "";
+
+            const tableHeads = getMaxKeysObject(documents[collectionSelection]);
+
+            // Function to create and append th elements
+            const createAndAppendTHead = async (text) => {
+                const thElement = document.createElement("th");
+                thElement.setAttribute("scope", "col");
+                thElement.textContent = text;
+                thElement.classList.add("px-6", "py-3", "bg-gray-100", "font-bold", "whitespace-nowrap");
+
+                // Append the th element to the table header row
+                tableHeaderRow.appendChild(thElement);
+            };
+
+            // Use arrow function for clarity
+            tableHeads.forEach(async element => {
+                await createAndAppendTHead(element);
+            });
+
+            for (let index = 0; index < documents[collectionSelection].length; index++) {
+                const tr = await createElement("tr", "", ["bg-white", "border-b", "text-sm", "odd:bg-white", "even:bg-gray-50"], tableBody);
+                const document = documents[collectionSelection][index];
+
+                // Iterate through table headers in the correct order
+                for (const element of tableHeads) {
+                    const classList = ["px-6", "py-2", "text-sm", "font-normal", "text-gray-900", "whitespace-nowrap"];
+                    let value = document[element];
+
+                    if (["_id", "createdAt", "updatedAt", "__v"].includes(element)) {
+                        classList.push("disabled");
+
+                        if (["createdAt", "updatedAt"].includes(element)) {
+                            value = await formatDate(value);
+                        }
+
+                        await createElement("td", value, classList, tr);
+                    } else {
+                        await createElement("td", value, classList, tr);
+                    }
+                }
+            }
+
+            const searchInput = document.getElementById("delete-search");
+            const showNullCheckbox = document.getElementById("delete-null");
+            filterTableByKeywordAndNull(searchInput.value.toLowerCase(), showNullCheckbox.checked);
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    } else {
+        document.querySelector("#accordion-flush-body-4 > div > div > div").setAttribute("status", "");
+    }
 }
 
 // Add an event listener for input changes in the search box
