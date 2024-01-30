@@ -127,8 +127,8 @@ async function getCollection() {
 
 async function getDocuments(collectionName) {
     try {
-        const database = mongoClient.db(database);
-        const collection = database.collection(collectionName);
+        const db = mongoClient.db(database);
+        const collection = db.collection(collectionName);
         const query = {};
         const documents = await collection.find(query).toArray();
 

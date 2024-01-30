@@ -18,7 +18,7 @@ document.querySelector("body > section:first-child > div > div:nth-child(3) > bu
     const { value: password } = document.querySelector("#admin-password");
 
     try {
-        const result = await performDatabaseConnect("WAD", "Admin", "wadproject24");
+        const result = await performDatabaseConnect("WAD_DB", "Admin", "wadproject24");
 
         if (result.connection) {
             document.querySelector("#login-cover").classList.add("hidden");
@@ -239,7 +239,7 @@ async function crudRead(event) {
 
             const searchInput = document.getElementById("read-search");
             const showNullCheckbox = document.getElementById("read-null");
-            filterTableByKeywordAndNull(searchInput.value.toLowerCase(), showNullCheckbox.checked);
+            filterTableByKeywordAndNull("#read-table > tbody", searchInput.value.toLowerCase(), showNullCheckbox.checked);
         } catch (error) {
             console.error('Error:', error);
         }
@@ -281,7 +281,8 @@ async function crudDelete(event) {
             tableHeaderRow.innerHTML = "";
             tableBody.innerHTML = "";
 
-            const tableHeads = getMaxKeysObject(documents[collectionSelection]);
+            let tableHeads = getMaxKeysObject(documents[collectionSelection]);
+            tableHeads.splice(0, 0, "select");
 
             // Function to create and append th elements
             const createAndAppendTHead = async (text) => {
@@ -317,14 +318,21 @@ async function crudDelete(event) {
 
                         await createElement("td", value, classList, tr);
                     } else {
-                        await createElement("td", value, classList, tr);
+                        if ("select" == element) {
+                            const td = await createElement("td", "", classList, tr);
+                            let checkbox = await createElement("input", "", ["w-4", "h-4", "text-green-600", "bg-gray-100", "border-gray-300", "rounded"], td)
+                            checkbox.id = document["_id"];
+                            checkbox.setAttribute("type", "checkbox");
+                        } else {
+                            await createElement("td", value, classList, tr);
+                        }
                     }
                 }
             }
 
             const searchInput = document.getElementById("delete-search");
             const showNullCheckbox = document.getElementById("delete-null");
-            filterTableByKeywordAndNull(searchInput.value.toLowerCase(), showNullCheckbox.checked);
+            filterTableByKeywordAndNull("#delete-table > tbody", searchInput.value.toLowerCase(), showNullCheckbox.checked);
         } catch (error) {
             console.error('Error:', error);
         }
@@ -335,22 +343,25 @@ async function crudDelete(event) {
 
 // Add an event listener for input changes in the search box
 document.addEventListener("DOMContentLoaded", () => {
-    const searchInput = document.getElementById("read-search");
-    const showNullCheckbox = document.getElementById("read-null");
-
-    searchInput.addEventListener("input", () => {
-        filterTableByKeywordAndNull(searchInput.value.toLowerCase(), showNullCheckbox.checked);
+    document.getElementById("read-search").addEventListener("input", () => {
+        filterTableByKeywordAndNull("#read-table > tbody", document.getElementById("read-search").value.toLowerCase(), document.getElementById("read-null").checked);
+    });
+    document.getElementById("delete-search").addEventListener("input", () => {
+        filterTableByKeywordAndNull("#delete-table > tbody", document.getElementById("delete-search").value.toLowerCase(), document.getElementById("delete-null").checked);
     });
 
     // Add an event listener for changes in the "Show Null" checkbox
-    showNullCheckbox.addEventListener("change", () => {
-        filterTableByKeywordAndNull(searchInput.value.toLowerCase(), showNullCheckbox.checked);
+    document.getElementById("read-null").addEventListener("change", () => {
+        filterTableByKeywordAndNull("#read-table > tbody", document.getElementById("read-search").value.toLowerCase(), document.getElementById("read-null").checked);
+    });
+    document.getElementById("delete-null").addEventListener("change", () => {
+        filterTableByKeywordAndNull("#delete-table > tbody", document.getElementById("delete-search").value.toLowerCase(), document.getElementById("delete-null").checked);
     });
 });
 
 // Combined function to achieve the scenario
-function filterTableByKeywordAndNull(query, showNull) {
-    const tableBody = document.querySelector("#read-table > tbody");
+function filterTableByKeywordAndNull(table, query, showNull) {
+    const tableBody = document.querySelector(table);
     const rows = tableBody.querySelectorAll("tr");
 
     rows.forEach((row) => {
@@ -382,7 +393,7 @@ function filterTableByKeywordAndNull(query, showNull) {
 async function createElement(tag, textContent, classes, parent) {
     return new Promise((resolve) => {
         const element = document.createElement(tag);
-        element.textContent = textContent;
+        element.innerHTML = textContent;
 
         if (Array.isArray(classes) && classes.length > 0) {
             element.classList.add(...classes);
