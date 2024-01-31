@@ -3,6 +3,7 @@ let getDatabaseDetails;
 let getCollection;
 let getDocuments;
 let formatDate;
+let deleteDocuments;
 
 setTimeout(() => {
     const { ipcRenderer, dateFns } = window.electronAPI;
@@ -39,6 +40,14 @@ setTimeout(() => {
                 } else {
                     return result = await ipcRenderer.invoke('collection-documents', { collection: collection });
                 }
+            } catch (error) {
+                console.log("Error in database operation:", error);
+            }
+        }
+
+        deleteDocuments = async (collection, documents) => {
+            try {
+                return result = await ipcRenderer.invoke('delete-documents', { collection: collection, documents: documents });
             } catch (error) {
                 console.log("Error in database operation:", error);
             }

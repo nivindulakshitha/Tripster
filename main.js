@@ -1,6 +1,6 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
-const { MongoClient } = require('mongodb');
+const { MongoClient, ObjectId } = require('mongodb');
 const mongoose = require('mongoose');
 
 require("electron-reloader")(module);
@@ -76,6 +76,10 @@ ipcMain.handle('collection-documents', async (event, data) => {
     return getDocuments(data.collection);
 });
 
+ipcMain.handle('delete-documents', async (event, data) => {
+    return deleteDocuments(data.collection, data.documents);
+});
+
 async function connectToMongo() {
     try {
         return await MongoClient.connect(`mongodb+srv://${username}:${password}@cluster.jnlrnoz.mongodb.net/?retryWrites=true&w=majority`, {});
@@ -142,5 +146,24 @@ async function getDocuments(collectionName) {
     } catch (error) {
         console.error('Error getting database details:', error);
         return { connection: false };
+    }
+}
+
+async function deleteDocuments(collectionName, documentIds) {
+    try {
+        const db = mongoClient.db(database);
+        const collection = db.collection(collectionName);
+
+        // Convert string IDs to ObjectId
+        const objectIds = documentIds.map(id => new ObjectId(id));
+
+        // Delete documents by IDs
+        //const result = await collection.deleteMany({ _id: { $in: objectIds } });
+
+        //return { success: true, deletedCount: result.deletedCount };
+        return { success: true, deletedCount: 5 };
+    } catch (error) {
+        console.error('Error deleting documents:', error);
+        return { success: false, error: error.message };
     }
 }

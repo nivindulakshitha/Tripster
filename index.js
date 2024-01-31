@@ -250,7 +250,9 @@ async function crudRead(event) {
 }
 
 async function crudDelete(event) {
-    document.querySelector("#accordion-flush-body-4 > div > div > div").setAttribute("status", "");
+    document.querySelector("#delete-table > caption > div").setAttribute("status", "");
+    document.querySelector("#delete-text").innerHTML = "Retrieving data...";
+
 
     if (document.querySelector("#accordion-flush-heading-4 > div").getAttribute("aria-expanded") === "true") {
         try {
@@ -275,7 +277,9 @@ async function crudDelete(event) {
             while (Object.keys(documents).length === 0) {
                 await new Promise(resolve => setTimeout(resolve, dataRetrieverTime));
             }
-            document.querySelector("#accordion-flush-body-4 > div > div > div").setAttribute("status", "done");
+            document.querySelector("#delete-table > caption > div").setAttribute("status", "done");
+            document.querySelector("#delete-text").innerHTML = "Retrieving data...";
+
 
             const tableHeaderRow = document.querySelector("#delete-table > thead > tr");
             const tableBody = document.querySelector("#delete-table > tbody");
@@ -339,7 +343,9 @@ async function crudDelete(event) {
             console.error('Error:', error);
         }
     } else {
-        document.querySelector("#accordion-flush-body-4 > div > div > div").setAttribute("status", "");
+        document.querySelector("#delete-table > caption > div").setAttribute("status", "");
+        document.querySelector("#delete-text").innerHTML = "Retrieving data...";
+
     }
 }
 
@@ -388,13 +394,36 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Add an event listener for documents delete option
     document.getElementById("delete-button").addEventListener("click", async () => {
-        const checkedIds = await handleDeleteCheckbox();
+        const checkedIds = handleDeleteCheckbox();
+        if (checkedIds.length === 0) { return }
 
-        console.log(collectionSelection, checkedIds);
+        document.querySelector("#delete-table > caption > div").setAttribute("status", "");
+        document.querySelector("#delete-text").innerHTML = "Deleting requested documents...";
+
+        const result = await deleteDocuments(collectionSelection, checkedIds);
+
+        if (result.success) {
+            document.querySelector("#delete-text").innerHTML = `${result.deletedCount} document(s) were deleted.`;
+            setTimeout(() => {
+                document.querySelector("#delete-table > caption > div").setAttribute("status", "done");
+                document.querySelector("#delete-text").innerHTML = "Retrieving data...";
+                crudDelete();
+                document.getElementById("delete-button").innerText = `Delete`;
+
+            }, 3000)
+        } else {
+            document.querySelector("#delete-table > caption > div").setAttribute("status", "error");
+            document.querySelector("#delete-text").innerHTML = "Documents deletion error occurred.<br>Try again with re-connecting to the database.";
+        }
+    })
+
+    document.querySelector("#delete-table > caption > div > button").addEventListener("click", () => {
+        document.querySelector("#delete-table > caption > div").setAttribute("status", "done");
+        document.querySelector("#delete-text").innerHTML = "Retrieving data...";
     })
 });
 
-// Combined function to achieve the scenario
+// Combined function to filter the data table
 function filterTableByKeywordAndNull(table, query, showNull, selectedOnly = false) {
     const tableBody = document.querySelector(table);
     const rows = tableBody.querySelectorAll("tr");

@@ -79,14 +79,18 @@ body > section > div > footer > div > ul > li > a {
   opacity: 0.7;
 }
 
+.loading-status[status="error"] svg,
+.loading-status[status="okay"] svg,
 #connection-status[status="error"] svg {
   display: none;
 }
 
+.loading-status[status="error"] span,
 #connection-status[status="error"] span {
   color: rgb(239 68 68) !important;
 }
 
+.loading-status[status="error"] button,
 #connection-status[status="error"] button {
   display: block;
 }
