@@ -161,6 +161,7 @@ document.querySelector("#delete-collection").addEventListener("change", (event) 
     document.getElementById("delete-search").value = "";
     document.getElementById("delete-null").checked = false;
     crudDelete();
+    document.getElementById("delete-button").innerText = `Delete`; // instead of handleDeleteCheckbox
 });
 
 async function crudRead(event) {
@@ -320,8 +321,9 @@ async function crudDelete(event) {
                     } else {
                         if ("select" == element) {
                             const td = await createElement("td", "", classList, tr);
-                            let checkbox = await createElement("input", "", ["w-4", "h-4", "text-green-600", "bg-gray-100", "border-gray-300", "rounded"], td)
+                            let checkbox = await createElement("input", "", ["w-4", "h-4", "text-red-600", "bg-gray-100", "border-gray-300", "rounded"], td)
                             checkbox.id = document["_id"];
+                            checkbox.onclick = handleDeleteCheckbox;
                             checkbox.setAttribute("type", "checkbox");
                         } else {
                             await createElement("td", value, classList, tr);
@@ -341,7 +343,30 @@ async function crudDelete(event) {
     }
 }
 
-// Add an event listener for input changes in the search box
+function handleDeleteCheckbox() {
+    const tableBody = document.querySelector("#delete-table > tbody");
+    const rows = tableBody.querySelectorAll("tr");
+
+    const checkedIds = [];
+
+    rows.forEach((row) => {
+        const checkbox = row.querySelector("input[type='checkbox']");
+
+        if (checkbox && checkbox.checked) {
+            checkedIds.push(checkbox.id);
+        }
+    });
+
+    if (checkedIds.length > 0) {
+        document.getElementById("delete-button").innerText = `Delete (${checkedIds.length})`
+    } else {
+        document.getElementById("delete-button").innerText = `Delete`
+    }
+
+    return checkedIds;
+}
+
+// Add an event listener for input changes
 document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("read-search").addEventListener("input", () => {
         filterTableByKeywordAndNull("#read-table > tbody", document.getElementById("read-search").value.toLowerCase(), document.getElementById("read-null").checked);
@@ -359,6 +384,13 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     document.getElementById("delete-selected").addEventListener("change", () => {
         filterTableByKeywordAndNull("#delete-table > tbody", document.getElementById("delete-search").value.toLowerCase(), document.getElementById("delete-null").checked, document.getElementById("delete-selected").checked);
+    });
+
+    // Add an event listener for documents delete option
+    document.getElementById("delete-button").addEventListener("click", async () => {
+        const checkedIds = await handleDeleteCheckbox();
+
+        console.log(collectionSelection, checkedIds);
     })
 });
 

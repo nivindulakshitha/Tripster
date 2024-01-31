@@ -31,6 +31,10 @@ select:focus {
   box-shadow: none !important;
 }
 
+button:focus {
+  border: none !important;
+}
+
 .justify-items-center {
   justify-items: center !important;
 }
