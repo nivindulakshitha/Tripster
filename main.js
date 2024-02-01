@@ -1,7 +1,10 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
+const util = require('util');
+const os = require('os');
 const path = require('path');
 const { MongoClient, ObjectId } = require('mongodb');
 const mongoose = require('mongoose');
+const excel = require("excel4node");
 
 require("electron-reloader")(module);
 
@@ -78,6 +81,10 @@ ipcMain.handle('collection-documents', async (event, data) => {
 
 ipcMain.handle('delete-documents', async (event, data) => {
     return deleteDocuments(data.collection, data.documents);
+});
+
+ipcMain.handle('download-excel', async (event, data) => {
+    return generateExcelFile(data.documents);
 });
 
 async function connectToMongo() {
@@ -164,5 +171,29 @@ async function deleteDocuments(collectionName, documentIds) {
     } catch (error) {
         console.error('Error deleting documents:', error);
         return { success: false, error: error.message };
+    }
+}
+
+const writeWorkbookAsync = util.promisify((wb, outputPath, callback) => {
+    wb.write(outputPath, callback);
+});
+
+async function generateExcelFile(data) {
+    // Create a new workbook
+    const wb = new excel.Workbook();
+
+    for (const head of Object.keys(data)) {
+        let sheet = wb.addWorksheet(head)
+        sheet.addRow(Object.keys(data[head]))
+    }
+
+    // Save the workbook to the user's documents folder
+    const outputPath = path.join(os.homedir(), 'Desktop', `${database}.xlsx`);
+
+    try {
+        await writeWorkbookAsync(wb, outputPath);
+        console.log(`Excel file saved to: ${outputPath}`);
+    } catch (err) {
+        console.error(err);
     }
 }

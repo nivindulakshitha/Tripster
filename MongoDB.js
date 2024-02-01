@@ -4,6 +4,7 @@ let getCollection;
 let getDocuments;
 let formatDate;
 let deleteDocuments;
+let downloadStructure;
 
 setTimeout(() => {
     const { ipcRenderer, dateFns } = window.electronAPI;
@@ -50,6 +51,14 @@ setTimeout(() => {
                 return result = await ipcRenderer.invoke('delete-documents', { collection: collection, documents: documents });
             } catch (error) {
                 console.log("Error in database operation:", error);
+            }
+        }
+
+        downloadStructure = async (data) => {
+            try {
+                await ipcRenderer.invoke('download-excel', { data: data });
+            } catch (error) {
+                console.log("Error in saving database structure file:", error);
             }
         }
     }

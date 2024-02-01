@@ -533,6 +533,18 @@ async function crudDelete(event) {
     }
 }
 
+async function templateDesigner() {
+    try {
+        while (collections.length === 0) {
+            await new Promise((resolve) => setTimeout(resolve, dataRetrieverTime));
+        }
+
+
+    } catch (error) {
+        console.error("Error:", error);
+    }
+}
+
 function handleDeleteCheckbox() {
     const tableBody = document.querySelector("#delete-table > tbody");
     const rows = tableBody.querySelectorAll("tr");
@@ -640,6 +652,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 .setAttribute("status", "done");
             document.querySelector("#delete-text").innerHTML = "Retrieving data...";
         });
+
+    // Handle database structure download
+    document.getElementById("structure-download").addEventListener("click", async () => {
+        await downloadStructure(collections);
+    })
 });
 
 // Combined function to filter the data table
