@@ -15,6 +15,7 @@ setTimeout(() => {
 
     if (ipcRenderer) {
         performDatabaseConnect = async (database, username, password) => {
+            console.log(database, username, password);
             try {
                 return result = await ipcRenderer.invoke('database-connect', { database: database, username: username, password: password });
             } catch (error) {

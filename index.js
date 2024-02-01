@@ -15,15 +15,9 @@ document
         document.querySelector("#login-area").style.filter = "blur(2px)";
 
         // Use object destructuring for cleaner code
-        const {
-            database: database
-        } = document.querySelector("#database-name");
-        const {
-            username: username
-        } = document.querySelector("#admin-username");
-        const {
-            password: password
-        } = document.querySelector("#admin-password");
+        const database = document.querySelector("#database-name").value;
+        const username = document.querySelector("#admin-username").value;
+        const password = document.querySelector("#admin-password").value;
 
         try {
             const result = await performDatabaseConnect(
@@ -389,7 +383,7 @@ async function crudRead(event) {
 async function crudUpdate(event) {
     document.querySelector("#update-table > caption > div")
         .setAttribute("status", "");
-    document.querySelector("#update-table > caption > form > div:nth-child(4) > div > button").innerText = `Update data`;
+    document.querySelector("#update-table > caption > form > div:nth-child(4) > div > button").innerText = `Update`;
 
     if (
         document
@@ -508,7 +502,7 @@ async function crudUpdate(event) {
                             this.setAttribute("edited", "true");
 
                             editedElements = document.querySelectorAll("#update-table tbody tr td[edited=true]").length;
-                            document.querySelector("#update-table > caption > form > div:nth-child(4) > div > button").innerText = `Update data (${editedElements})`;
+                            document.querySelector("#update-table > caption > form > div:nth-child(4) > div > button").innerText = `Update (${editedElements})`;
                         });
                     }
                 }
@@ -710,14 +704,12 @@ async function crudCreate(event) {
     let result = await readOpenedDataFile(file);
 
     if (result.success) {
-        loadingText.innerText = "Uploading data to the database";
-        console.log(result.data);
+        loadingText.innerText = "Uploading to the database";
 
         result = await uploadReadDataFile(result.data);
-        console.log(result);
 
         if (result.success) {
-            loadingText.innerText = `${result.data} documents uploaded data to the database`;
+            loadingText.innerText = `${result.data} documents uploaded to the database`;
             setTimeout(() => {
                 loadingComponent.setAttribute("status", "done");
                 loadingText.innerText = "";
@@ -783,6 +775,14 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById("delete-search").value.toLowerCase(),
             false,
             document.getElementById("delete-selected").checked
+        );
+    });
+
+    document.getElementById("update-search").addEventListener("input", () => {
+        filterTableByKeywordAndNull(
+            "#update-table > tbody",
+            document.getElementById("update-search").value.toLowerCase(),
+            document.getElementById("update-null").checked
         );
     });
 
