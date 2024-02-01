@@ -158,10 +158,9 @@ async function deleteDocuments(collectionName, documentIds) {
         const objectIds = documentIds.map(id => new ObjectId(id));
 
         // Delete documents by IDs
-        //const result = await collection.deleteMany({ _id: { $in: objectIds } });
+        const result = await collection.deleteMany({ _id: { $in: objectIds } });
 
-        //return { success: true, deletedCount: result.deletedCount };
-        return { success: true, deletedCount: 5 };
+        return { success: true, deletedCount: result.deletedCount };
     } catch (error) {
         console.error('Error deleting documents:', error);
         return { success: false, error: error.message };

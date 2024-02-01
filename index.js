@@ -159,7 +159,6 @@ document.querySelector("#accordion-flush-heading-4").addEventListener("click", c
 document.querySelector("#delete-collection").addEventListener("change", (event) => {
     collectionSelection = event.target.value;
     document.getElementById("delete-search").value = "";
-    document.getElementById("delete-null").checked = false;
     crudDelete();
     document.getElementById("delete-button").innerText = `Delete`; // instead of handleDeleteCheckbox
 });
@@ -308,6 +307,7 @@ async function crudDelete(event) {
             for (let index = 0; index < documents[collectionSelection].length; index++) {
                 const tr = await createElement("tr", "", ["bg-white", "border-b", "text-sm", "odd:bg-white", "even:bg-gray-50"], tableBody);
                 const document = documents[collectionSelection][index];
+                tr.id = document["_id"];
 
                 // Iterate through table headers in the correct order
                 for (const element of tableHeads) {
@@ -337,8 +337,7 @@ async function crudDelete(event) {
             }
 
             const searchInput = document.getElementById("delete-search");
-            const showNullCheckbox = document.getElementById("delete-null");
-            filterTableByKeywordAndNull("#delete-table > tbody", searchInput.value.toLowerCase(), showNullCheckbox.checked);
+            filterTableByKeywordAndNull("#delete-table > tbody", searchInput.value.toLowerCase(), false);
         } catch (error) {
             console.error('Error:', error);
         }
@@ -378,18 +377,15 @@ document.addEventListener("DOMContentLoaded", () => {
         filterTableByKeywordAndNull("#read-table > tbody", document.getElementById("read-search").value.toLowerCase(), document.getElementById("read-null").checked);
     });
     document.getElementById("delete-search").addEventListener("input", () => {
-        filterTableByKeywordAndNull("#delete-table > tbody", document.getElementById("delete-search").value.toLowerCase(), document.getElementById("delete-null").checked, document.getElementById("delete-selected").checked);
+        filterTableByKeywordAndNull("#delete-table > tbody", document.getElementById("delete-search").value.toLowerCase(), false, document.getElementById("delete-selected").checked);
     });
 
     // Add an event listener for changes in the "Show Null" checkbox
     document.getElementById("read-null").addEventListener("change", () => {
         filterTableByKeywordAndNull("#read-table > tbody", document.getElementById("read-search").value.toLowerCase(), document.getElementById("read-null").checked);
     });
-    document.getElementById("delete-null").addEventListener("change", () => {
-        filterTableByKeywordAndNull("#delete-table > tbody", document.getElementById("delete-search").value.toLowerCase(), document.getElementById("delete-null").checked, document.getElementById("delete-selected").checked);
-    });
     document.getElementById("delete-selected").addEventListener("change", () => {
-        filterTableByKeywordAndNull("#delete-table > tbody", document.getElementById("delete-search").value.toLowerCase(), document.getElementById("delete-null").checked, document.getElementById("delete-selected").checked);
+        filterTableByKeywordAndNull("#delete-table > tbody", document.getElementById("delete-search").value.toLowerCase(), false, document.getElementById("delete-selected").checked);
     });
 
     // Add an event listener for documents delete option
@@ -435,7 +431,7 @@ function filterTableByKeywordAndNull(table, query, showNull, selectedOnly = fals
 
         cells.forEach((cell) => {
             // Check if cell content is null or an empty string
-            if (cell.innerText.trim().toLowerCase() === "null" || cell.innerText.trim().length === 0) {
+            if (cell.innerText.trim().length === 0) {
                 hasNull = true;
             }
 
