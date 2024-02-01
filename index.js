@@ -81,15 +81,6 @@ document
         }
     });
 
-// Delete this
-setTimeout(() => {
-    document
-        .querySelector(
-            "body > section:first-child > div > div:nth-child(3) > button"
-        )
-        .click();
-}, 500);
-
 document.addEventListener("DOMContentLoaded", () => {
     // Get focus every time when sign-in page landed
     document.querySelector("#database-name").focus();
