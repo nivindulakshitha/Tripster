@@ -15,15 +15,21 @@ document
         document.querySelector("#login-area").style.filter = "blur(2px)";
 
         // Use object destructuring for cleaner code
-        const { value: database } = document.querySelector("#database-name");
-        const { value: username } = document.querySelector("#admin-username");
-        const { value: password } = document.querySelector("#admin-password");
+        const {
+            database: database
+        } = document.querySelector("#database-name");
+        const {
+            username: username
+        } = document.querySelector("#admin-username");
+        const {
+            password: password
+        } = document.querySelector("#admin-password");
 
         try {
             const result = await performDatabaseConnect(
-                "WAD_DB",
-                "Admin",
-                "wadproject24"
+                database,
+                username,
+                password
             );
 
             if (result.connection) {
@@ -105,7 +111,10 @@ document.addEventListener("DOMContentLoaded", () => {
 // Function to check the internet connection is available
 async function checkInternetConnection() {
     try {
-        await fetch("https://www.google.com", { method: "HEAD", mode: "no-cors" });
+        await fetch("https://www.google.com", {
+            method: "HEAD",
+            mode: "no-cors"
+        });
         return true;
     } catch (error) {
         return false;
@@ -227,6 +236,19 @@ document
         crudRead();
     });
 
+// For the UPDATE operation
+document
+    .querySelector("#accordion-flush-heading-3")
+    .addEventListener("click", crudUpdate);
+document
+    .querySelector("#update-collection")
+    .addEventListener("change", (event) => {
+        collectionSelection = event.target.value;
+        document.getElementById("update-search").value = "";
+        document.getElementById("update-null").checked = false;
+        crudUpdate();
+    });
+
 // For the DELETE operation
 document
     .querySelector("#accordion-flush-heading-4")
@@ -314,9 +336,7 @@ async function crudRead(event) {
             });
 
             for (
-                let index = 0;
-                index < documents[collectionSelection].length;
-                index++
+                let index = 0; index < documents[collectionSelection].length; index++
             ) {
                 const tr = await createElement(
                     "tr",
@@ -371,6 +391,151 @@ async function crudRead(event) {
     } else {
         document
             .querySelector("#accordion-flush-body-2 > div > div > div")
+            .setAttribute("status", "");
+    }
+}
+
+async function crudUpdate(event) {
+    document.querySelector("#update-table > caption > div")
+        .setAttribute("status", "");
+    document.querySelector("#update-table > caption > form > div:nth-child(4) > div > button").innerText = `Update data`;
+
+    if (
+        document
+            .querySelector("#accordion-flush-heading-3 > div")
+            .getAttribute("aria-expanded") === "true"
+    ) {
+        try {
+            while (collections.length === 0) {
+                await new Promise((resolve) => setTimeout(resolve, dataRetrieverTime));
+            }
+
+            const collectionSelect = document.querySelector("#update-collection");
+            collectionSelect.innerHTML = "";
+            for (const collection of collections) {
+                const option = await createElement(
+                    "option",
+                    collection,
+                    [],
+                    collectionSelect
+                );
+                option.setAttribute("value", collection);
+
+                if (
+                    collectionSelection.length === 0 &&
+                    collections.indexOf(collection) === 0
+                ) {
+                    option.selected = true;
+                    collectionSelection = collection;
+                } else {
+                    collectionSelect.value = collectionSelection;
+                }
+            }
+
+            while (Object.keys(documents).length === 0) {
+                await new Promise((resolve) => setTimeout(resolve, dataRetrieverTime));
+            }
+            document.querySelector("#update-table > caption > div").setAttribute("status", "done");
+
+            const tableHeaderRow = document.querySelector("#update-table > thead > tr");
+            const tableBody = document.querySelector("#update-table > tbody");
+            tableHeaderRow.innerHTML = "";
+            tableBody.innerHTML = "";
+
+            const tableHeads = getMaxKeysObject(documents[collectionSelection]);
+
+            // Function to create and append th elements
+            const createAndAppendTHead = async (text) => {
+                const thElement = document.createElement("th");
+                thElement.setAttribute("scope", "col");
+                thElement.textContent = text;
+                thElement.classList.add(
+                    "px-6",
+                    "py-3",
+                    "bg-gray-100",
+                    "font-bold",
+                    "whitespace-nowrap"
+                );
+
+                // Append the th element to the table header row
+                tableHeaderRow.appendChild(thElement);
+            };
+
+            // Use arrow function for clarity
+            tableHeads.forEach(async (element) => {
+                await createAndAppendTHead(element);
+            });
+
+            for (
+                let index = 0; index < documents[collectionSelection].length; index++
+            ) {
+                const tr = await createElement(
+                    "tr",
+                    "",
+                    [
+                        "bg-white",
+                        "border-b",
+                        "text-sm",
+                        "odd:bg-white",
+                        "even:bg-gray-50",
+                    ],
+                    tableBody
+                );
+                const collectionDocument = documents[collectionSelection][index];
+
+                // Iterate through table headers in the correct order
+                for (const element of tableHeads) {
+                    const classList = [
+                        "px-6",
+                        "py-2",
+                        "text-sm",
+                        "font-normal",
+                        "text-gray-900",
+                        "whitespace-nowrap",
+                    ];
+                    let value = collectionDocument[element];
+
+                    if (["_id", "createdAt", "updatedAt", "__v"].includes(element)) {
+                        classList.push("disabled");
+
+                        if (["createdAt", "updatedAt"].includes(element)) {
+                            value = await formatDate(value);
+                        }
+
+                        await createElement("td", value, classList, tr);
+                    } else {
+                        const tdElement = await createElement("td", value, classList, tr);
+                        tdElement.contentEditable = true;
+                        tdElement.setAttribute("spellcheck", "false");
+                        tdElement.setAttribute("field", element);
+                        tdElement.setAttribute("id", collectionDocument["_id"]);
+
+
+                        tdElement.addEventListener("input", function () {
+                            this.textContent = this.textContent.replace(/\n/g, ' ');
+                            this.setAttribute("collection", collectionSelection);
+                            this.setAttribute("edited", "true");
+
+                            editedElements = document.querySelectorAll("#update-table tbody tr td[edited=true]").length;
+                            document.querySelector("#update-table > caption > form > div:nth-child(4) > div > button").innerText = `Update data (${editedElements})`;
+                        });
+                    }
+                }
+            }
+
+            const searchInput = document.getElementById("update-search");
+            const showNullCheckbox = document.getElementById("update-null");
+            filterTableByKeywordAndNull(
+                "#update-table > tbody",
+                searchInput.value.toLowerCase(),
+                showNullCheckbox.checked
+            );
+        } catch (error) {
+            console.error("Error:", error);
+        }
+    } else {
+        document
+            .querySelector("#accordion-flush-body-3 > div > div > div")
             .setAttribute("status", "");
     }
 }
@@ -454,9 +619,7 @@ async function crudDelete(event) {
             });
 
             for (
-                let index = 0;
-                index < documents[collectionSelection].length;
-                index++
+                let index = 0; index < documents[collectionSelection].length; index++
             ) {
                 const tr = await createElement(
                     "tr",
@@ -584,7 +747,6 @@ async function templateDesigner() {
             await new Promise((resolve) => setTimeout(resolve, dataRetrieverTime));
         }
 
-
     } catch (error) {
         console.error("Error:", error);
     }
@@ -633,6 +795,14 @@ document.addEventListener("DOMContentLoaded", () => {
         );
     });
 
+    document.getElementById("update-null").addEventListener("change", () => {
+        filterTableByKeywordAndNull(
+            "#update-table > tbody",
+            document.getElementById("update-search").value.toLowerCase(),
+            document.getElementById("update-null").checked
+        );
+    });
+
     // Add an event listener for changes in the "Show Null" checkbox
     document.getElementById("read-null").addEventListener("change", () => {
         filterTableByKeywordAndNull(
@@ -641,6 +811,7 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById("read-null").checked
         );
     });
+
     document.getElementById("delete-selected").addEventListener("change", () => {
         filterTableByKeywordAndNull(
             "#delete-table > tbody",
@@ -709,6 +880,60 @@ document.addEventListener("DOMContentLoaded", () => {
         document.querySelector("#accordion-flush-body-1 > div > div > div").setAttribute("status", "done");;
         document.querySelector("#create-text").innerHTML = "";
     })
+
+    // Handle data update function
+    document.querySelector("#update-table > caption > form > div:nth-child(4) > div > button").addEventListener("click", () => {
+        const loadingComponent = document.querySelector("#update-table > caption > div");
+
+        if (loadingComponent.getAttribute("status") !== "") {
+            updateData();
+        }
+    })
+    async function updateData() {
+        const loadingComponent = document.querySelector("#update-table > caption > div");
+        loadingComponent.setAttribute("status", "");
+        const loadingText = document.querySelector("#update-text");
+        loadingText.innerHTML = "Fetching changes.";
+
+        const changes = document.querySelectorAll("#update-table tbody tr td[edited=true]");
+        const copiedObject = { ...documents };
+
+        for (const change of changes) {
+            let collection = change.getAttribute("collection");
+            let field = change.getAttribute("field");
+            let id = change.getAttribute("id");
+            let value = change.innerText;
+
+            for (const [collectionKey, documentsKey] of Object.entries(documents)) {
+                for (const document of documentsKey) {
+                    // Extract the _id and other fields from the document
+                    const { _id, ...updateFields } = document;
+
+                    if (_id == id) {
+                        copiedObject[collection][documentsKey.indexOf(document)][field] = value;
+                        break;
+                    }
+                }
+            }
+        }
+
+        loadingText.innerHTML = "Making changes to the database";
+
+        const result = await setUpdations(copiedObject);
+
+        if (result.success) {
+            loadingText.innerHTML = `${result.data} value(s) were modified.`;
+            setTimeout(() => {
+                loadingComponent.setAttribute("status", "done");
+                loadingText.innerText = "";
+                crudUpdate();
+            }, 2000);
+        } else {
+            loadingComponent.setAttribute("status", "error");
+            loadingText.innerHTML = `Something went wrong when updating. See log below.<br>${result.data}`;
+        }
+    }
+
 });
 
 // Combined function to filter the data table
@@ -745,18 +970,18 @@ function filterTableByKeywordAndNull(
             // Check if the row is selected
             const isSelected = hasCheckbox.checked;
 
-            row.style.display = selectedOnly
-                ? isSelected && (showNull ? hasNull && hasKeyword : hasKeyword)
-                    ? ""
-                    : "none"
-                : (showNull ? hasNull && hasKeyword : hasKeyword)
-                    ? ""
-                    : "none";
+            row.style.display = selectedOnly ?
+                isSelected && (showNull ? hasNull && hasKeyword : hasKeyword) ?
+                    "" :
+                    "none" :
+                (showNull ? hasNull && hasKeyword : hasKeyword) ?
+                    "" :
+                    "none";
         } else {
             // If there is no checkbox, show the row based on the null and keyword conditions
-            row.style.display = (showNull ? hasNull && hasKeyword : hasKeyword)
-                ? ""
-                : "none";
+            row.style.display = (showNull ? hasNull && hasKeyword : hasKeyword) ?
+                "" :
+                "none";
         }
     });
 }
@@ -787,9 +1012,9 @@ function getMaxKeysObject(arr) {
 
     // Find the object with the maximum number of keys
     const maxKeysObject = arr.reduce((maxObject, currentObject) => {
-        return Object.keys(currentObject).length > Object.keys(maxObject).length
-            ? currentObject
-            : maxObject;
+        return Object.keys(currentObject).length > Object.keys(maxObject).length ?
+            currentObject :
+            maxObject;
     }, arr[0]);
 
     // Get all keys from the object with the maximum keys

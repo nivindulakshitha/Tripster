@@ -100,6 +100,10 @@ ipcMain.handle('upload-data', async (event, data) => {
     return submitToMongoDB(data.documents);
 })
 
+ipcMain.handle('update-data', async (event, data) => {
+    return updateDocuments(data.object);
+})
+
 async function connectToMongo() {
     try {
         return await MongoClient.connect(`mongodb+srv://${username}:${password}@cluster.jnlrnoz.mongodb.net/?retryWrites=true&w=majority`, {});
@@ -364,5 +368,79 @@ async function insertDocuments(collectionName, documents) {
         return { success: true, data: result.insertedCount }
     } catch (error) {
         return { success: false, data: error }
+    }
+}
+
+async function updateDocuments(updatedData) {
+    try {
+        const db = mongoClient.db(database);
+        let totalModifiedCount = 0;
+
+        // Iterate over the collections in the updatedData object
+        for (const [collectionKey, documents] of Object.entries(updatedData)) {
+            const collection = db.collection(collectionKey);
+
+            // Iterate over the documents in each collection
+            for (const document of documents) {
+                // Extract the _id and other fields from the document
+                const { _id, ...updateFields } = document;
+
+                // Get the existing document from the database
+                let existingDocument = await collection.findOne({ _id: new ObjectId(_id) });
+                if (existingDocument == null) {
+                    existingDocument = await collection.findOne({ _id: _id });
+                }
+
+                // Compare existing values with new values to determine modifications
+                const modifiedFields = {};
+                for (const key of Object.keys(updateFields)) {
+                    if (existingDocument[key] !== updateFields[key]) {
+                        modifiedFields[key] = updateFields[key];
+
+                        if (Object.keys(updateFields).includes("updatedAt")) {
+                            const currentDate = new Date();
+
+                            const options = {
+                                weekday: 'short',
+                                month: 'short',
+                                day: 'numeric',
+                                year: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                second: '2-digit',
+                                timeZoneName: 'short',
+                            };
+                            modifiedFields["updatedAt"] = currentDate.toLocaleString('en-US', options);
+                        }
+                    }
+                }
+
+                // Update the document only if there are modifications
+                if (Object.keys(modifiedFields).length > 0) {
+                    let result;
+
+                    if (_id instanceof ObjectId) {
+                        result = await collection.updateOne(
+                            { _id: new ObjectId(_id) },
+                            { $set: modifiedFields }
+                        );
+
+                    } else {
+                        result = await collection.updateOne(
+                            { _id: _id },
+                            { $set: modifiedFields }
+                        );
+                    }
+
+                    // Increment the total modified count
+                    totalModifiedCount += result.modifiedCount;
+                }
+            }
+        }
+
+        return { success: true, data: totalModifiedCount };
+    } catch (error) {
+        console.log(error);
+        return { success: false, data: error };
     }
 }

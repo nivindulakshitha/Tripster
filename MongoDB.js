@@ -8,6 +8,7 @@ let downloadStructure;
 let openDataFile;
 let readOpenedDataFile;
 let uploadReadDataFile;
+let setUpdations;
 
 setTimeout(() => {
     const { ipcRenderer, dateFns } = window.electronAPI;
@@ -88,6 +89,16 @@ setTimeout(() => {
                 console.log("Error in reading database structure file:", error);
             }
         }
+
+        setUpdations = async (object) => {
+            try {
+                const result = await ipcRenderer.invoke('update-data', { object: object });
+                return result;
+            } catch (error) {
+                console.log("Error in reading database structure file:", error);
+            }
+        }
+
     }
 
     if (dateFns) {
