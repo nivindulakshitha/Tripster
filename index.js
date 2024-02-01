@@ -32,7 +32,7 @@ document
                 document.querySelector("#login-text").innerHTML = "Connecting...";
                 document.querySelector("#login-area").style.filter = "none";
                 document.querySelector("#connection-status").setAttribute("status", "");
-                document.querySelector("#admin-username").focus();
+                document.querySelector("#database-name").focus();
                 document
                     .querySelector("body > section:nth-child(1)")
                     .classList.add("hidden");
@@ -58,7 +58,7 @@ document
         document.querySelector("#login-text").innerHTML = "Connecting...";
         document.querySelector("#login-area").style.filter = "none";
         document.querySelector("#connection-status").setAttribute("status", "");
-        document.querySelector("#admin-username").focus();
+        document.querySelector("#database-name").focus();
     });
 
 // Perform the database connection action on Enter key press event in the sign-in form
@@ -86,7 +86,7 @@ setTimeout(() => {
 
 document.addEventListener("DOMContentLoaded", () => {
     // Get focus every time when sign-in page landed
-    document.querySelector("#admin-username").focus();
+    document.querySelector("#database-name").focus();
 
     // Check the online status every second
     setInterval(async () => {
