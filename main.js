@@ -46,7 +46,7 @@ app.whenReady().then(() => {
 });
 
 app.on('window-all-closed', () => {
-    console.log(123);
+    mongoClient.close();
     if (process.platform !== 'darwin') {
         app.quit();
     }
