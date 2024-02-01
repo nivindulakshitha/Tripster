@@ -144,8 +144,7 @@
                 management through comprehensive CRUD operations.</p>
 
             <div id="accordion-flush" data-accordion="collapse"
-                data-active-classes="bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
-                data-inactive-classes="text-gray-500 dark:text-gray-400">
+                data-active-classes="bg-white dark:bg-gray-900 text-gray-900" data-inactive-classes="text-gray-500">
                 <h2 class="disabled cursor-pointer" id="accordion-flush-heading-1">
                     <div type="button"
                         class="flex items-center justify-between w-full py-5 font-medium rtl:text-right text-gray-500 border-b border-gray-200 dark:border-gray-700 dark:text-gray-400 gap-3"
@@ -173,10 +172,9 @@
                 </h2>
                 <div id="accordion-flush-body-1" class="hidden" aria-labelledby="accordion-flush-heading-1">
                     <div class="py-5 border-b border-gray-200">
-                        <caption
-                            class="p-5 text-lg font-semibold text-left rtl:text-right text-gray-900 bg-white dark:text-white dark:bg-gray-800">
+                        <caption class="p-5 font-semibold text-left rtl:text-right text-gray-900 bg-white">
                             Add New Products to Database
-                            <p class="mt-1 text-sm font-normal text-gray-500">Initiate the addition of new data to your
+                            <p class="mt-1 font-normal text-gray-500">Initiate the addition of new data to your
                                 database, enriching the
                                 catalog with the latest offerings. This operation
                                 ensures that your product range is continually updated and reflects the newest additions
@@ -213,7 +211,7 @@
                         <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
                             <table class="relative w-full text-left mb-3 rtl:text-right text-gray-500 table px-3"
                                 id="read-table">
-                                <caption class="p-5 text-lg font-semibold text-left rtl:text-right text-gray-900">
+                                <caption class="p-5 font-semibold text-left rtl:text-right text-gray-900">
                                     Retrieve Product Catalog Data
                                     <p class="mt-1 font-normal text-gray-500">Retrieve comprehensive data from
                                         your product catalog stored in the database. Explore detailed information about
@@ -333,7 +331,7 @@
                         <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
                             <table class="relative w-full text-left mb-3 rtl:text-right text-gray-500 table px-3"
                                 id="delete-table">
-                                <caption class="p-5 text-lg font-semibold text-left rtl:text-right text-gray-900">
+                                <caption class="p-5 font-semibold text-left rtl:text-right text-gray-900">
                                     Permanently Remove Product
                                     <p class="mt-1 font-normal text-gray-500">Confirm the irreversible deletion of this
                                         product from the database. This critical action ensures the removal of all
@@ -352,6 +350,13 @@
                                             <input type="text" id="delete-search"
                                                 class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg block w-full"
                                                 placeholder="Search keyword" spellcheck="false">
+                                        </div>
+                                        <div class="flex items-start">
+                                            <div class="flex items-center h-5 me-2">
+                                                <input id="delete-null" type="checkbox" value=""
+                                                    class="w-4 h-4 text-green-600 border border-gray-300 rounded bg-gray-50">
+                                            </div>
+                                            <label for="delete-null">Show null</label>
                                         </div>
                                         <div class="flex items-start">
                                             <div class="flex items-center h-5 me-2">
