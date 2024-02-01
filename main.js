@@ -46,6 +46,7 @@ app.whenReady().then(() => {
 });
 
 app.on('window-all-closed', () => {
+    console.log(123);
     if (process.platform !== 'darwin') {
         app.quit();
     }
@@ -182,10 +183,19 @@ async function generateExcelFile(data) {
     // Create a new workbook
     const wb = new excel.Workbook();
 
-    for (const head of Object.keys(data)) {
-        let sheet = wb.addWorksheet(head)
-        sheet.addRow(Object.keys(data[head]))
-    }
+    const heads = Object.keys(data);
+    heads.forEach(head => {
+        let sheet = wb.addWorksheet(head);
+
+        // Add headers to the sheet
+        const rows = Object.keys(data[head]);
+        for (const row of rows) {
+            const columns = Object.keys(data[head][row]);
+            columns.forEach(column => {
+                sheet.cell(1, columns.indexOf(column) + 1).string(column);
+            });
+        }
+    });
 
     // Save the workbook to the user's documents folder
     const outputPath = path.join(os.homedir(), 'Desktop', `${database}.xlsx`);

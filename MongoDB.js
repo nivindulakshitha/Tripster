@@ -56,7 +56,7 @@ setTimeout(() => {
 
         downloadStructure = async (data) => {
             try {
-                await ipcRenderer.invoke('download-excel', { data: data });
+                await ipcRenderer.invoke('download-excel', { documents: data });
             } catch (error) {
                 console.log("Error in saving database structure file:", error);
             }

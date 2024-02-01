@@ -655,7 +655,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Handle database structure download
     document.getElementById("structure-download").addEventListener("click", async () => {
-        await downloadStructure(collections);
+        await downloadStructure(documents);
     })
 });
 
