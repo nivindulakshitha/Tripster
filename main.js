@@ -1,4 +1,5 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+const xlsx = require("xlsx")
 const util = require('util');
 const os = require('os');
 const path = require('path');
@@ -46,7 +47,6 @@ app.whenReady().then(() => {
 });
 
 app.on('window-all-closed', () => {
-    mongoClient.close();
     if (process.platform !== 'darwin') {
         app.quit();
     }
@@ -87,6 +87,18 @@ ipcMain.handle('delete-documents', async (event, data) => {
 ipcMain.handle('download-excel', async (event, data) => {
     return generateExcelFile(data.documents);
 });
+
+ipcMain.handle('upload-excel', async (event) => {
+    return uploadExcelFile();
+});
+
+ipcMain.handle('read-excel', async (event, data) => {
+    return readExcelFile(data.file);
+})
+
+ipcMain.handle('upload-data', async (event, data) => {
+    return submitToMongoDB(data.documents);
+})
 
 async function connectToMongo() {
     try {
@@ -166,9 +178,14 @@ async function deleteDocuments(collectionName, documentIds) {
         const objectIds = documentIds.map(id => new ObjectId(id));
 
         // Delete documents by IDs
-        const result = await collection.deleteMany({ _id: { $in: objectIds } });
+        let deletedCount = 0;
+        let result = await collection.deleteMany({ _id: { $in: documentIds } });
+        deletedCount += result.deletedCount
 
-        return { success: true, deletedCount: result.deletedCount };
+        result = await collection.deleteMany({ _id: { $in: objectIds } });
+        deletedCount += result.deletedCount
+
+        return { success: true, deletedCount: deletedCount };
     } catch (error) {
         console.error('Error deleting documents:', error);
         return { success: false, error: error.message };
@@ -202,8 +219,150 @@ async function generateExcelFile(data) {
 
     try {
         await writeWorkbookAsync(wb, outputPath);
-        console.log(`Excel file saved to: ${outputPath}`);
     } catch (err) {
         console.error(err);
+    }
+}
+
+function uploadExcelFile() {
+    adminPro.setIgnoreMouseEvents(true);
+    const files = dialog.showOpenDialogSync({
+        title: 'Select data inclueded Excel file',
+        defaultPath: path.join(os.homedir(), 'Desktop'),
+        buttonLabel: 'Load Excel File',
+        properties: ['openFile'],
+        filters: [
+            { name: 'Excel Files', extensions: ['xlsx'] }
+        ],
+    });
+
+    if (files) {
+        const filePath = files[0];
+        adminPro.setIgnoreMouseEvents(false);
+        return filePath;
+    } else {
+        adminPro.setIgnoreMouseEvents(false);
+        return [];
+    }
+}
+
+function readExcelFile(filePath) {
+    try {
+        const workbook = xlsx.readFile(filePath);
+        const sheetNames = workbook.SheetNames;
+
+        const data = {};
+
+        sheetNames.forEach((sheetName) => {
+            const sheet = workbook.Sheets[sheetName];
+            const sheetData = xlsx.utils.sheet_to_json(sheet, { header: 1 });
+
+            // Exclude the header row from the data
+            const [header, ...rows] = sheetData;
+
+            // Map rows to objects using headers
+            const formattedData = rows.map((row) => {
+                const formattedRow = {};
+                header.forEach((column, index) => {
+                    switch (column) {
+                        case "_id": {
+                            formattedRow[column] = new ObjectId().toString();
+                            break;
+                        }
+
+                        case "createdAt": {
+                            const currentDate = new Date();
+
+                            const options = {
+                                weekday: 'short',
+                                month: 'short',
+                                day: 'numeric',
+                                year: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                second: '2-digit',
+                                timeZoneName: 'short',
+                            };
+                            formattedRow[column] = currentDate.toLocaleString('en-US', options);
+                            break;
+
+                        }
+
+                        case "updatedAt": {
+                            const currentDate = new Date();
+
+                            const options = {
+                                weekday: 'short',
+                                month: 'short',
+                                day: 'numeric',
+                                year: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                second: '2-digit',
+                                timeZoneName: 'short',
+                            };
+                            formattedRow[column] = currentDate.toLocaleString('en-US', options);
+                            break;
+
+                        }
+
+                        case "__v": {
+                            formattedRow[column] = 0;
+                            break;
+                        }
+
+                        default: {
+                            formattedRow[column] = row[index];
+                        }
+                    }
+                });
+                return formattedRow;
+            });
+
+            data[sheetName.toLowerCase()] = formattedData;
+        });
+
+        return { success: true, data: data };
+    } catch (error) {
+        return { success: false, data: error };
+    }
+}
+
+// ... (existing code)
+
+async function submitToMongoDB(data) {
+    try {
+        await connectToMongo(); // Ensure the MongoDB connection is established
+
+        let documentsCount = 0;
+        let result;
+
+        for (const collection of Object.keys(data)) {
+            const result = await insertDocuments(collection, data[collection]);
+
+            if (result.success) {
+                documentsCount += result.data;
+            } else {
+                return { success: false, data: result.data };
+            }
+        }
+
+        return { success: true, data: documentsCount };
+
+    } catch (error) {
+        console.error('Error submitting documents to MongoDB:', error);
+        return { success: false, data: error }
+    }
+}
+
+async function insertDocuments(collectionName, documents) {
+    try {
+        const db = mongoClient.db(database);
+        const collection = db.collection(collectionName);
+        const result = await collection.insertMany(documents);
+
+        return { success: true, data: result.insertedCount }
+    } catch (error) {
+        return { success: false, data: error }
     }
 }

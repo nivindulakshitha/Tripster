@@ -5,6 +5,9 @@ let getDocuments;
 let formatDate;
 let deleteDocuments;
 let downloadStructure;
+let openDataFile;
+let readOpenedDataFile;
+let uploadReadDataFile;
 
 setTimeout(() => {
     const { ipcRenderer, dateFns } = window.electronAPI;
@@ -59,6 +62,30 @@ setTimeout(() => {
                 await ipcRenderer.invoke('download-excel', { documents: data });
             } catch (error) {
                 console.log("Error in saving database structure file:", error);
+            }
+        }
+
+        openDataFile = async () => {
+            try {
+                return result = await ipcRenderer.invoke('upload-excel', {});
+            } catch (error) {
+                console.log("Error in uploading database structure file:", error);
+            }
+        }
+
+        readOpenedDataFile = async (filePath) => {
+            try {
+                return result = await ipcRenderer.invoke('read-excel', { file: filePath });
+            } catch (error) {
+                console.log("Error in reading database structure file:", error);
+            }
+        }
+
+        uploadReadDataFile = async (data) => {
+            try {
+                return await ipcRenderer.invoke('upload-data', { documents: data });
+            } catch (error) {
+                console.log("Error in reading database structure file:", error);
             }
         }
     }

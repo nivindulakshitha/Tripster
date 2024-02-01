@@ -111,7 +111,7 @@ section:nth-child(2) #accordion-flush {
   transition: all 0.5s ease;
 }
 
-section .loading-status[status="done"] {
+.loading-status[status="done"] {
   display: none !important;
 }
 

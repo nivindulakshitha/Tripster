@@ -211,6 +211,9 @@ const databaseStatusUpdater = (result) => {
     }
 };
 
+// For the CREATE operation
+document.querySelector("#accordion-flush-body-1 > div > div > button").addEventListener("click", crudCreate);
+
 // For the READ operation
 document
     .querySelector("#accordion-flush-heading-2")
@@ -533,6 +536,48 @@ async function crudDelete(event) {
     }
 }
 
+async function crudCreate(event) {
+    const loadingComponent = document.querySelector("#accordion-flush-body-1 > div > div > div");
+    const loadingText = document.querySelector("#create-text");
+
+    loadingComponent.setAttribute("status", "");
+    loadingText.innerText = "Opening the data file";
+
+    const file = await openDataFile();
+
+    if (!file) {
+        loadingComponent.setAttribute("status", "error");
+        loadingText.innerHTML = `No any file was selected to be proceed`;
+        return;
+    }
+
+    loadingText.innerText = "Reading the content of data file";
+
+    let result = await readOpenedDataFile(file);
+
+    if (result.success) {
+        loadingText.innerText = "Uploading data to the database";
+        console.log(result.data);
+
+        result = await uploadReadDataFile(result.data);
+        console.log(result);
+
+        if (result.success) {
+            loadingText.innerText = `${result.data} documents uploaded data to the database`;
+            setTimeout(() => {
+                loadingComponent.setAttribute("status", "done");
+                loadingText.innerText = "";
+            }, 2000);
+        } else {
+            loadingComponent.setAttribute("status", "error");
+            loadingText.innerHTML = `Something went wrong when uploading. See log below.<br>${result.data}`;
+        }
+    } else {
+        loadingComponent.setAttribute("status", "error");
+        loadingText.innerHTML = `Something went wrong when uploading. See log below.<br>${result.data}`;
+    }
+}
+
 async function templateDesigner() {
     try {
         while (collections.length === 0) {
@@ -627,14 +672,16 @@ document.addEventListener("DOMContentLoaded", () => {
                     "#delete-text"
                 ).innerHTML = `${result.deletedCount} document(s) were deleted.`;
                 setTimeout(() => {
+                    crudDelete();
                     document
                         .querySelector("#delete-table > caption > div")
                         .setAttribute("status", "done");
                     document.querySelector("#delete-text").innerHTML =
                         "Retrieving data...";
-                    crudDelete();
                     document.getElementById("delete-button").innerText = `Delete`;
-                }, 3000);
+                    document.getElementById("delete-search").value = "";
+                    document.getElementById("delete-selected").checked = false;
+                }, 2000);
             } else {
                 document
                     .querySelector("#delete-table > caption > div")
@@ -656,6 +703,11 @@ document.addEventListener("DOMContentLoaded", () => {
     // Handle database structure download
     document.getElementById("structure-download").addEventListener("click", async () => {
         await downloadStructure(documents);
+    })
+
+    document.querySelector("#accordion-flush-body-1 > div > div > div > button").addEventListener("click", () => {
+        document.querySelector("#accordion-flush-body-1 > div > div > div").setAttribute("status", "done");;
+        document.querySelector("#create-text").innerHTML = "";
     })
 });
 
