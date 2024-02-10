@@ -45,7 +45,7 @@ document
                 document.querySelector("#login-text").innerHTML = "Connecting...";
                 document.querySelector("#login-area").style.filter = "none";
                 document.querySelector("#connection-status").setAttribute("status", "");
-                document.querySelector("#database-name").focus();
+                document.querySelector("#login-username").focus();
                 document
                     .querySelector("body > section:nth-child(1)")
                     .classList.add("hidden");
@@ -71,7 +71,7 @@ document
         document.querySelector("#login-text").innerHTML = "Connecting...";
         document.querySelector("#login-area").style.filter = "none";
         document.querySelector("#connection-status").setAttribute("status", "");
-        document.querySelector("#database-name").focus();
+        document.querySelector("#login-username").focus();
     });
 
 // Perform the database connection action on Enter key press event in the sign-in form
