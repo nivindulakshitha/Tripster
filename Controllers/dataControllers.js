@@ -10,7 +10,7 @@ const allRoutes = async (req, res) => {
 // Get specific route details
 const oneRoute = async (req, res) => {
     const { id } = req.params
-    const route = await Route.findById(id);
+    const route = await Route.findOne({ "_id": id });
 
     if (!route) {
         return res.status(404).json({ "error": "No such id can be found" })
@@ -24,6 +24,7 @@ const createRoute = async (req, res) => {
     const { origin, destination, via, active } = req.body;
 
     const newRoute = new Route({
+        _id: "",
         origin: origin,
         destination: destination,
         via: via,

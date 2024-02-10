@@ -1,6 +1,11 @@
 const mongoose = require("mongoose");
 
 const routeSchema = new mongoose.Schema({
+    _id: {
+        type: String,
+        required: true,
+        unique: true
+    },
     origin: {
         type: String,
         required: true
