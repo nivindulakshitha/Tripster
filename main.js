@@ -9,7 +9,7 @@ const excel = require("excel4node");
 
 require("electron-reloader")(module);
 
-let adminPro, database, username, password, mongoClient;
+let adminPro, uri, database, username, password, mongoClient;
 
 function createWindow() {
     adminPro = new BrowserWindow({
@@ -33,7 +33,6 @@ function createWindow() {
 
     adminPro.setMenuBarVisibility(false);
     adminPro.loadFile('index.html');
-    adminPro.webContents.openDevTools();
 }
 
 app.whenReady().then(() => {
@@ -54,6 +53,7 @@ app.on('window-all-closed', () => {
 
 ipcMain.handle('database-connect', async (event, data) => {
     try {
+        uri = data.connection;
         database = data.database;
         username = data.username;
         password = data.password;
@@ -104,9 +104,18 @@ ipcMain.handle('update-data', async (event, data) => {
     return updateDocuments(data.object);
 })
 
+ipcMain.handle('save-localVar', async (event, data) => {
+    return saveLocalValue(data.key, data.value);
+})
+
+ipcMain.handle('get-localVar', async (event, data) => {
+    return getLocalValue(data);
+})
+
 async function connectToMongo() {
     try {
-        return await MongoClient.connect(`mongodb+srv://${username}:${password}@cluster.jnlrnoz.mongodb.net/?retryWrites=true&w=majority`, {});
+        uri = uri.replace("<username>", username).replace("<password>", password);
+        return await MongoClient.connect(uri, {});
     } catch (error) {
         console.error('Error connecting to MongoDB:', error);
         throw error;
@@ -119,7 +128,7 @@ async function getDatabaseDetails() {
         const currentUser = await Db.command({ connectionStatus: 1 });
         const userRoles = currentUser.authInfo.authenticatedUserRoles;
 
-        await mongoose.connect(`mongodb+srv://${username}:${password}@cluster.jnlrnoz.mongodb.net/?retryWrites=true&w=majority`, {
+        await mongoose.connect(uri, {
             dbName: database,
         });
 
@@ -440,7 +449,24 @@ async function updateDocuments(updatedData) {
 
         return { success: true, data: totalModifiedCount };
     } catch (error) {
-        console.log(error);
         return { success: false, data: error };
+    }
+}
+
+function saveLocalValue(key, value) {
+    try {
+        adminPro.webContents.executeJavaScript(`localStorage.setItem('${key}', '${value}')`);
+        return { success: true };
+    } catch (error) {
+        return { success: false, result: error };
+    }
+}
+
+async function getLocalValue(key) {
+    try {
+        const data = await adminPro.webContents.executeJavaScript(`localStorage.getItem('${key}')`);
+        return { success: true, result: data }
+    } catch (error) {
+        return { success: false, result: error };
     }
 }

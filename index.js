@@ -15,18 +15,31 @@ document
         document.querySelector("#login-area").style.filter = "blur(2px)";
 
         // Use object destructuring for cleaner code
+        const connection = document.querySelector("#connection-string").value;
         const database = document.querySelector("#database-name").value;
-        const username = document.querySelector("#admin-username").value;
-        const password = document.querySelector("#admin-password").value;
+        const username = document.querySelector("#login-username").value;
+        const password = document.querySelector("#login-password").value;
 
         try {
             const result = await performDatabaseConnect(
+                connection,
                 database,
                 username,
                 password
             );
 
             if (result.connection) {
+                // Saving data to the storage
+                let connectionData = {
+                    string: connection,
+                    database: database,
+                    username: username
+                }
+
+                Object.entries(connectionData).forEach(([key, value]) => {
+                    saveLocalValue(key, value);
+                });
+
                 document.querySelector("#login-cover").classList.add("hidden");
                 document.querySelector("#connection-status").classList.add("hidden");
                 document.querySelector("#login-text").innerHTML = "Connecting...";
@@ -77,7 +90,24 @@ document
 
 document.addEventListener("DOMContentLoaded", () => {
     // Get focus every time when sign-in page landed
-    document.querySelector("#database-name").focus();
+    document.querySelector("#login-username").focus();
+
+    // Search for saved local storage data and place in inputs
+    let connectionData = {
+        string: "connection-string",
+        database: "database-name",
+        username: "login-username"
+    }
+
+    setTimeout(() => {
+        Object.entries(connectionData).forEach(async ([key, use]) => {
+            const data = await getLocalValue(key)
+
+            if (data.success && data.result) {
+                document.getElementById(use).value = data.result;
+            }
+        });
+    }, 1000)
 
     // Check the online status every second
     setInterval(async () => {

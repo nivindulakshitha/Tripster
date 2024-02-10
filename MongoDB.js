@@ -9,15 +9,17 @@ let openDataFile;
 let readOpenedDataFile;
 let uploadReadDataFile;
 let setUpdations;
+let saveLocalValue;
+let getLocalValue;
 
 setTimeout(() => {
     const { ipcRenderer, dateFns } = window.electronAPI;
 
     if (ipcRenderer) {
-        performDatabaseConnect = async (database, username, password) => {
-            console.log(database, username, password);
+        performDatabaseConnect = async (connection, database, username, password) => {
+            console.log(connection, database, username, password);
             try {
-                return result = await ipcRenderer.invoke('database-connect', { database: database, username: username, password: password });
+                return result = await ipcRenderer.invoke('database-connect', { connection: connection, database: database, username: username, password: password });
             } catch (error) {
                 console.log("Error in database operation:", error);
             }
@@ -97,6 +99,24 @@ setTimeout(() => {
                 return result;
             } catch (error) {
                 console.log("Error in reading database structure file:", error);
+            }
+        }
+
+        saveLocalValue = async (key, value) => {
+            try {
+                const result = await ipcRenderer.invoke('save-localVar', { key: key, value: value });
+                return result;
+            } catch (error) {
+                console.log("Error in saving data:", error);
+            }
+        }
+
+        getLocalValue = async (key) => {
+            try {
+                const result = await ipcRenderer.invoke('get-localVar', key);
+                return result;
+            } catch (error) {
+                console.log("Error in getting data:", error);
             }
         }
 
