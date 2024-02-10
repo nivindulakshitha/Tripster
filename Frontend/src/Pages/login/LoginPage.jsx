@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Container, Form, Button } from 'react-bootstrap';
+import { Container, Form, Button, Row,Col} from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom'; // Use useNavigate instead of useHistory
 import axios from 'axios'; // import axios for HTTP requests
 import NavigationBar from '../../component/NevigationBar';
@@ -16,6 +16,12 @@ const LoginPage = () => {
 
   const handleLogin = async (event) => {
     event.preventDefault();
+
+    await axios.get("http://localhost:4000/api/route").then(result => {
+      console.log(result);
+    });
+
+
     try {
       const response = await axios.post('/api/auth/login', { username, password });
       // Assuming your backend sends back a token and/or user details in response
@@ -39,52 +45,77 @@ const LoginPage = () => {
   };
 
   return (
-    <>
-      <NavigationBar showLoginButton={false} />
-      <Container className="login-container d-flex align-items-center justify-content-center">
-        <Form className="login-form" onSubmit={handleLogin}>
-          <h2 className="text-center mb-4">Login</h2>
+
+<>
+  <NavigationBar showLoginButton={false} />
+  <div className="login-page"> {/* Changed from Container to div to remove default padding */}
+    <Row className="justify-content-center align-items-stretch min-vh-100 m-0"> {/* m-0 removes default margin */}
+      <Col xs={12} md={6} className="login-section d-flex align-items-center justify-content-center px-0">
+        <Form className="login-form text-center" onSubmit={handleLogin}>
+          <h2>Welcome back!</h2>
+          <p>Login to get your seats reserved.</p>
           {error && <div className="alert alert-danger">{error}</div>}
           <Form.Group controlId="formBasicEmail" className="mb-3">
-            <Form.Label>Username</Form.Label>
-            <Form.Control
-              type="text"
-              placeholder="Enter username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-            />
-          </Form.Group>
+          <Form.Control
+            type="email"
+            placeholder="Email"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
+        </Form.Group>
 
-          <Form.Group controlId="formBasicPassword" className="mb-3">
-            <Form.Label>Password</Form.Label>
-            <Form.Control
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </Form.Group>
+        <Form.Group controlId="formBasicPassword" className="mb-3">
+          <Form.Control
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </Form.Group>
 
-          <Button variant="primary" type="submit" className="w-100">
-            Login
-          </Button>
+        <Form.Group className="mb-3 d-flex justify-content-between">
+          <Form.Check type="checkbox" label="Remember me" />
+          <Link to="/forgot-password" onClick={handleForgotPassword} className="forgot-password">
+            Forgot Password?
+          </Link>
+        </Form.Group>
 
-          <div className="text-center mt-3">
-            <Link to="/register">Need an account? Register</Link>
-          </div>
+        <Button variant="primary" type="submit" className="w-100 mb-3">
+          Login
+        </Button>
 
-          <div className="text-center mt-2">
-            <Link to="/forgot-password" onClick={handleForgotPassword}>Forgot password?</Link>
-          </div>
-        </Form>
-      </Container>
-      <AlertModal 
-        show={showModal} 
-        handleClose={handleCloseModal} 
-        message="Password reset functionality needs to be implemented on the backend."
-      />
-      <Footer></Footer>
-    </>
+        <div className="or-container">
+          <div className="line"></div>
+            <span className="or-text">or</span>
+          <div className="line"></div>
+        </div>
+
+        <Button variant="outline-primary" className="mb-4 w-100">
+          Login with Google
+        </Button>
+
+        <div className="text-center mt-3">
+          <span>Don't have an account? </span>
+          <Link to="/register" className="register-link">Create one</Link>
+        </div>
+      </Form>
+      </Col>
+      <Col md={6} className="image-section p-0 d-none d-md-block"> {/* p-0 removes padding */}
+        <img src="src\assets\busLogin.png" alt="Login Visual" className="img-fluid w-100 h-100" /> {/* w-100 and h-100 make the image full width and height */}
+      </Col>
+    </Row>
+  </div>
+  <AlertModal 
+    show={showModal} 
+    handleClose={handleCloseModal} 
+    message="Password reset functionality needs to be implemented on the backend."
+  />
+  <Footer />
+</>
+
+
+
+
   );
 };
 

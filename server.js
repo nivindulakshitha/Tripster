@@ -1,22 +1,26 @@
 const express = require("express");
 const mongoose = require("mongoose");
-require("dotenv").config()
+const cors = require("cors"); // Import the cors middleware
+require("dotenv").config();
 const routeHandler = require("./Routes/handler");
 
 // Application
-const app = express()
+const app = express();
 
 app.use(express.json());
 
-//Routes middleware
+// Use cors middleware
+app.use(cors());
+
+// Routes middleware
 app.use((req, res, next) => {
-    next()
+    next();
 });
 
-//Routes handler
-app.use('/api', routeHandler)
+// Routes handler
+app.use('/api', routeHandler);
 
-//Mongo DB connection
+// MongoDB connection
 mongoose.connect(process.env.DB_URI, {
     dbName: 'WAD_DB',
 }).then(() => {

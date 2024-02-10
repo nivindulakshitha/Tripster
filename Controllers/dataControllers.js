@@ -1,5 +1,6 @@
 // Data models
 const Route = require("../DataModels/routeModel");
+const { ObjectId } = require("mongodb");
 
 // Get all recorded routes
 const allRoutes = async (req, res) => {
@@ -22,9 +23,10 @@ const oneRoute = async (req, res) => {
 // A new route creator
 const createRoute = async (req, res) => {
     const { origin, destination, via, active } = req.body;
+    const id = new ObjectId().toString();
 
     const newRoute = new Route({
-        _id: "",
+        _id: id,
         origin: origin,
         destination: destination,
         via: via,
@@ -32,15 +34,27 @@ const createRoute = async (req, res) => {
     });
 
     await newRoute.save().then(() => {
-        res.json({ "message": "new route is added" })
-        console.log("New route is saved");
+        res.json({ "message": "new route is added, " + id })
     }).catch((error) => {
         console.log(error);
     });
 }
 
+// Delete a route
+const deleteRoute = async (req, res) => {
+    const { id } = req.params
+    let result = await Route.deleteOne({ _id: id });
+
+    if (!result) {
+        return res.status(404).json({ "error": "No such id can be deleted" })
+    }
+
+    res.status(200).json(result.deletedCount + " document(s) was deleted");
+}
+
 module.exports = {
     allRoutes,
     oneRoute,
-    createRoute
+    createRoute,
+    deleteRoute
 }

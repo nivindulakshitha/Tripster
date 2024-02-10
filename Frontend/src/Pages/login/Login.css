@@ -1,15 +1,80 @@
-/* LoginPage.css */
+.login-page {
+	/* Removed padding to allow content to extend to the edges */
+}
 
-.login-container {
-    min-height: calc(100vh - 56px); /* 100vh minus the navbar height */
-  }
-  
-  .signup-form {
-    width: 100%;
-    max-width: 330px; /* Width of the form */
-    padding: 15px;
-    margin: auto;
-  }
-  
-  /* Additional styles if needed */
-  
+.login-section .login-form {
+	/* Center form content and adjust properly to the screen size */
+	max-width: 100%;
+	padding: 2rem;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
+
+.google-btn {
+	background: linear-gradient(0deg, #ffffff, #ffffff),
+		linear-gradient(0deg, #7749f8, #7749f8);
+}
+
+/* Or Line */
+
+.or-container {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+	padding: 0px;
+	gap: 23px; /* Adjust the gap as needed to match your design */
+}
+
+.line {
+	width: 100px; /* Adjust the width as needed to match your design */
+	height: 1px; /* This creates a solid line */
+	background-color: #6ea8fe; /* This is the blue color from your code snippet */
+}
+
+.or-text {
+	color: #6ea8fe; /* This is the blue color from your code snippet */
+	font-family: "Inter", sans-serif; /* Ensure this font is loaded in your project */
+	font-size: small;
+	line-height: 15px; /* This affects the height of the text */
+}
+
+.image-section {
+	/* Image covers the full section without any space */
+	height: 100vh;
+	min-height: 100%;
+}
+
+.image-section img {
+	width: 100%; /* Ensure the image is full width */
+	height: 100%; /* Ensure the image is full height */
+	object-fit: cover; /* Cover the entire area without stretching */
+}
+
+/* Adjust footer to ensure it sticks to the bottom */
+.footer {
+	position: absolute;
+	bottom: 0;
+	width: 100%;
+}
+
+/* Responsive adjustments */
+@media (max-width: 991px) {
+	/* No specific styles needed here unless there are other adjustments for this viewport size */
+}
+
+@media (max-width: 768px) {
+	.login-section {
+		/* Optional margin-top can be added if needed */
+	}
+
+	.image-section {
+		/* Hide the image on smaller screens */
+		display: none;
+	}
+
+	.login-form {
+		padding: 1rem; /* Reduced padding on smaller screens */
+	}
+}
