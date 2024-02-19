@@ -59,7 +59,6 @@ const deleteRoute = async (req, res) => {
 // Get specific route details
 const oneUser = async (req, res) => {
     const { username, password } = req.body;
-    console.log(username, password, "END");
     const user = await User.findOne({ "email": username, "password": password });
 
     if (!user) {
