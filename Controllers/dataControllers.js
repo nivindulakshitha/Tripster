@@ -1,5 +1,6 @@
 // Data models
 const Route = require("../DataModels/routeModel");
+const User = require("../DataModels/userModel")
 const { ObjectId } = require("mongodb");
 
 // Get all recorded routes
@@ -52,9 +53,46 @@ const deleteRoute = async (req, res) => {
     res.status(200).json(result.deletedCount + " document(s) was deleted");
 }
 
+
+// Routes working with users
+
+// Get specific route details
+const oneUser = async (req, res) => {
+    const { username, password } = req.body;
+    console.log(username, password, "END");
+    const user = await User.findOne({ "email": username, "password": password });
+
+    if (!user) {
+        return res.status(404).json({ "error": "No such id can be found" })
+    }
+
+    res.status(200).json(user);
+}
+
+
+const registerUser = async (req, res) => {
+    const { username, email, password } = req.body;
+    const id = new ObjectId().toString();
+
+    const newUser = new User({
+        _id: id,
+        username: username,
+        email: email,
+        password: password
+    });
+
+    await newUser.save().then(() => {
+        res.json({ "message": "new user is added, " + id })
+    }).catch((error) => {
+        console.log(error);
+    });
+}
+
 module.exports = {
     allRoutes,
     oneRoute,
     createRoute,
-    deleteRoute
+    deleteRoute,
+    oneUser,
+    registerUser,
 }
