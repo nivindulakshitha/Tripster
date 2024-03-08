@@ -1,5 +1,7 @@
 // Data models
 const Route = require("../DataModels/routeModel");
+const Bus = require("../DataModels/busModel");
+const Schedule = require("../DataModels/scheduleModel");
 const User = require("../DataModels/userModel")
 const { ObjectId } = require("mongodb");
 
@@ -54,6 +56,7 @@ const deleteRoute = async (req, res) => {
 }
 
 
+
 // Routes working with users
 
 // Get specific route details
@@ -68,6 +71,15 @@ const oneUser = async (req, res) => {
     res.status(200).json(user);
 }
 
+const allBusses = async (req, res) => {
+    const busses = await Bus.find({});
+
+    if (!busses) {
+        return res.status(404).json({ "error": "No such id can be found" })
+    }
+
+    res.status(200).json(busses);
+}
 
 const registerUser = async (req, res) => {
     const { username, email, password } = req.body;
@@ -87,11 +99,59 @@ const registerUser = async (req, res) => {
     });
 }
 
+// Get all busses
+const allUsers = async (req, res) => {
+    const users = await User.find({});
+
+    if (!users) {
+        return res.status(404).json({ "error": "No such id can be found" })
+    }
+
+    res.status(200).json(users);
+}
+
+
+// Register a new schedule
+
+const registerSchedule = async (req, res) => {
+    const { route, bus, departure, arrival } = req.body;
+    const id = new ObjectId().toString();
+
+    const newSchedule = new Schedule({
+        _id: id,
+        routeId: route,
+        busId: bus,
+        departure: departure,
+        arrival: arrival
+    });
+
+    await newSchedule.save().then(() => {
+        res.json({ "message": "new shedule is added, " + id })
+    }).catch((error) => {
+        console.log(error);
+    });
+}
+
+const oneSchedule = async (req, res) => {
+    const { id } = req.params;
+    const schedule = await Schedule.find({ "routeId": id });
+
+    if (!schedule) {
+        return res.status(404).json({ "error": "No such id can be found" })
+    }
+
+    res.status(200).json(schedule);
+}
+
 module.exports = {
     allRoutes,
     oneRoute,
     createRoute,
     deleteRoute,
     oneUser,
+    allUsers,
+    allBusses,
     registerUser,
+    registerSchedule,
+    oneSchedule
 }

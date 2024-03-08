@@ -22,6 +22,10 @@ const routeSchema = new mongoose.Schema({
         type: Boolean,
         default: true,
     },
+    price: {
+        type: Number,
+        default: 0.00
+    }
 }, { timestamps: true });
 
 const Route = mongoose.model("Route", routeSchema, "routes");

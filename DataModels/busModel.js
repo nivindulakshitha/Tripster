@@ -16,11 +16,7 @@ const busSchema = new mongoose.Schema({
     active: {
         type: Boolean,
         default: true
-    },
-    latency: {
-        type: Date,
-        default: 0,
-    },
+    }
 }, { timestamps: true });
 
 const Bus = mongoose.model("Bus", busSchema, "buses");

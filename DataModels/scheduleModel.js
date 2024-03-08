@@ -17,9 +17,9 @@ const scheduleSchema = new mongoose.Schema({
         type: Date,
         required: true
     },
-    latency: {
-        type: Date,
-        default: 0,
+    seats: {
+        type: Array,
+        default: []
     }
 }, { timestamps: true });
 
