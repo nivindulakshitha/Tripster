@@ -155,6 +155,24 @@ const oneSchedule = async (req, res) => {
     res.status(200).json(schedule);
 }
 
+const reserveSeats = async (req, res) => {
+    const { scheduleId, seats } = req.body;
+    console.log(scheduleId, seats);
+    const schedule = await Schedule.findOne({ "_id": new ObjectId(scheduleId) });
+
+    if (!schedule) {
+        return res.status(404).json({ "error": "No such id can be found" })
+    } else {
+        try {
+            schedule.seats = seats;
+            await schedule.save();
+            return res.status(200).json(schedule);
+        } catch (e) {
+            res.status(404).json({ "error": "Schedule was not updated" });
+        }
+    }
+}
+
 module.exports = {
     allRoutes,
     oneRoute,
@@ -166,5 +184,6 @@ module.exports = {
     oneBus,
     registerUser,
     registerSchedule,
-    oneSchedule
+    oneSchedule,
+    reserveSeats
 }
