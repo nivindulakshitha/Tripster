@@ -15,8 +15,9 @@ const busSchema = new mongoose.Schema({
         required: true
     },
     seating: {
-        type: Number,
-        required: true
+        type: Object,
+        required: false,
+        default: {}
     },
     active: {
         type: Boolean,

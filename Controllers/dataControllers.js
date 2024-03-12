@@ -132,6 +132,17 @@ const saveUserSchedule = async (req, res) => {
     }
 }
 
+const getUserSchedules = async (req, res) => {
+    const { id } = req.params;
+    const user = await User.findOne({ "_id": id });
+
+    if (!user) {
+        return res.status(404).json({ "error": "No such id can be found" })
+    }
+
+    res.status(200).json(user);
+}
+
 // Get specific bus details
 const oneBus = async (req, res) => {
     const { id } = req.params
@@ -168,6 +179,17 @@ const registerSchedule = async (req, res) => {
 
 const oneSchedule = async (req, res) => {
     const { id } = req.params;
+    const schedule = await Schedule.find({ "_id": id });
+
+    if (!schedule) {
+        return res.status(404).json({ "error": "No such id can be found" })
+    }
+
+    res.status(200).json(schedule);
+}
+
+const oneScheduleByRoute = async (req, res) => {
+    const { id } = req.params;
     const schedule = await Schedule.find({ "routeId": id });
 
     if (!schedule) {
@@ -179,8 +201,7 @@ const oneSchedule = async (req, res) => {
 
 const reserveSeats = async (req, res) => {
     const { scheduleId, seats } = req.body;
-    console.log(scheduleId, seats);
-    const schedule = await Schedule.findOne({ "_id": new ObjectId(scheduleId) });
+    const schedule = await Schedule.findOne({ "_id": scheduleId });
 
     if (!schedule) {
         return res.status(404).json({ "error": "No such id can be found" })
@@ -204,9 +225,11 @@ module.exports = {
     allUsers,
     allBusses,
     saveUserSchedule,
+    getUserSchedules,
     oneBus,
     registerUser,
     registerSchedule,
     oneSchedule,
+    oneScheduleByRoute,
     reserveSeats
 }

@@ -1,6 +1,11 @@
 const mongoose = require("mongoose");
 
 const scheduleSchema = new mongoose.Schema({
+    _id: {
+        type: String,
+        required: true,
+        unique: true
+    },
     routeId: {
         type: String,
         required: true
@@ -18,8 +23,8 @@ const scheduleSchema = new mongoose.Schema({
         required: true
     },
     seats: {
-        type: Array,
-        default: []
+        type: Object,
+        default: {}
     }
 }, { timestamps: true });
 
