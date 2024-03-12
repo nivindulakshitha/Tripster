@@ -1,6 +1,11 @@
 const mongoose = require("mongoose");
 
 const busSchema = new mongoose.Schema({
+    _id: {
+        type: String,
+        required: true,
+        unique: true
+    },
     registration: {
         type: String,
         required: true
