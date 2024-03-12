@@ -2,7 +2,7 @@ const express = require("express")
 const router = express.Router()
 
 //Data controllers
-const { allRoutes, createRoute, oneRoute, deleteRoute, registerUser, oneUser, allUsers, allBusses, oneBus, registerSchedule, oneSchedule, reserveSeats } = require("../Controllers/dataControllers")
+const { allRoutes, createRoute, oneRoute, deleteRoute, registerUser, oneUser, allUsers, allBusses, oneBus, registerSchedule, oneSchedule, reserveSeats, saveUserSchedule } = require("../Controllers/dataControllers")
 
 router.get("/route", allRoutes)
 
@@ -19,6 +19,8 @@ router.get("/bus/:id", oneBus)
 router.post("/user/signup", registerUser)
 
 router.post("/user/login", oneUser)
+
+router.post("/user/schedule", saveUserSchedule)
 
 router.get("/user/accounts", allUsers)
 

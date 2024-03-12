@@ -110,6 +110,28 @@ const allUsers = async (req, res) => {
     res.status(200).json(users);
 }
 
+const saveUserSchedule = async (req, res) => {
+    const { userId, scheduleId, sheduleDate } = req.body;
+    const user = await User.findOne({ "_id": userId });
+
+    if (!user) {
+        return res.status(404).json({ "error": "No such id can be found" })
+    } else {
+        try {
+            user.reservations.push(
+                {
+                    scheduleId: scheduleId,
+                    date: sheduleDate
+                }
+            );
+            await user.save();
+            return res.status(200).json(user);
+        } catch (e) {
+            res.status(404).json({ "error": "Schedule was not updated" });
+        }
+    }
+}
+
 // Get specific bus details
 const oneBus = async (req, res) => {
     const { id } = req.params
@@ -181,6 +203,7 @@ module.exports = {
     oneUser,
     allUsers,
     allBusses,
+    saveUserSchedule,
     oneBus,
     registerUser,
     registerSchedule,
